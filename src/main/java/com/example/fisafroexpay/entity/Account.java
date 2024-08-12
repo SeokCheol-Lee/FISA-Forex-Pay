@@ -28,7 +28,7 @@ public class Account extends BaseEntity{
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private Users users;
+    private User user;
     private String name;
     private String accountNumber;
     private String currencyCode;
