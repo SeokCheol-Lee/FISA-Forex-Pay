@@ -13,8 +13,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransferResponse {
     private Long transferId;  // 송금 ID
-    private BigDecimal transferredAmount;  // 송금된 금액
+    private String userName;
+    private String userAccountNumber;
     private String receiverName;
     private String receiverAccountNumber;
+    private BigDecimal transferredAmount;  // 송금된 금액
+    private BigDecimal totalTransferFee; // 환전 수수료 + 송금 수수료
+
 
 }

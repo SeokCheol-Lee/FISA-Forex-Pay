@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Status {
-    FAIL("FAIL"),SUCCESS("SUCCESS");
+    FAILED("FAIL"),
+    PROCESSING("PROCESSING"),
+    COMPLETED("COMPLETED");
     private final String description;
 }
