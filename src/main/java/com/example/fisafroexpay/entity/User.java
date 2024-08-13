@@ -21,7 +21,7 @@ import org.hibernate.envers.AuditOverride;
 @NoArgsConstructor
 @AllArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
-public class Users extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id
     @Column(name = "user_id", nullable = false)
