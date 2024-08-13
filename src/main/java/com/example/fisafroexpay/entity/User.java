@@ -30,9 +30,9 @@ public class User extends BaseEntity {
     private String username;
     private String email;
     private String password;
-    private Long total_assets;
+    private Long totalAssets;
     @Column(nullable = false, scale = 2)
-    private BigDecimal discount_rate;
+    private BigDecimal discountRate;
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private int age;
