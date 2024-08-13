@@ -25,8 +25,9 @@ public class SecurityConfig  {
         .formLogin((formLogin) ->
             formLogin
                 .loginPage("/login.html")
-                .loginProcessingUrl("/login/login-processing")
-                .defaultSuccessUrl("/",true)
+                .loginProcessingUrl("/perform_login")  // 로그인 폼 action URL
+                .defaultSuccessUrl("/home", true)  // 로그인 성공 시 리다이렉트될 URL
+                .failureUrl("/login?error=true")
         )
         .logout((logout) ->
             logout.logoutSuccessUrl("/")
