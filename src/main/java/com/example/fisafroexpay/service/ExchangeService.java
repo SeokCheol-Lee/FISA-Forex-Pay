@@ -19,14 +19,14 @@ public class ExchangeService {
     private final ExchangeRateRepository exchangeRateRepository;
     private final ExchangeDetailRepository exchangeDetailRepository;
 
-    public ExchangeDetail createExchangeDetail(ExchangeRequest req) {
+    public ExchangeDetail createExchangeDetail(BigDecimal initAmount, String currencyCode) {
         log.info("[ExchangeService.createExchangeDetail]");
 
         // 환율 받아오기
-        ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(req.getCurrencyCode());
+        ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(currencyCode);
 
         //고객이 얼마를 보낼건지 받기(원화)
-        BigDecimal initAmount = req.getAmount();
+
 
         // 환전 수수료 (원화, 환전 수수료율 1.5% 적용, 테이블에 저장)
         BigDecimal exchangeFeeKRW = initAmount.multiply(BigDecimal.valueOf(0.015));
@@ -43,17 +43,9 @@ public class ExchangeService {
                 .initAmount(initAmount)
                 .exchangeFee(exchangeFeeKRW)
                 .finalAmount(exchangedAmount)
-                .status(Status.SUCCESS)
+                .status(Status.COMPLETED)
                 .build();
     }
 
-    public ExchangeDetail saveExchangeDetail(ExchangeDetail exchangeDetail) {
-        return exchangeDetailRepository.save(exchangeDetail);
-    }
 
-    // TODO : controller 단에서 작성(Response 리턴 로직)
-//    public ExchangeResponse getExchange(ExchangeRequest req) {
-//        ExchangeDetail detail = createExchangeDetail(req);
-//        return new ExchangeResponse(d, req.getCurrencyCode());
-//    }
 }
