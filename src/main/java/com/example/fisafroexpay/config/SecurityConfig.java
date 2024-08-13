@@ -1,5 +1,6 @@
 package com.example.fisafroexpay.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig  {
 
   @Bean
   public PasswordEncoder passwordEncoder(){return new BCryptPasswordEncoder();}
@@ -23,8 +24,7 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin((formLogin) ->
             formLogin
-                .usernameParameter("email")
-                .passwordParameter("password")
+                .loginPage("/login.html")
                 .loginProcessingUrl("/login/login-processing")
                 .defaultSuccessUrl("/",true)
         )
@@ -32,9 +32,11 @@ public class SecurityConfig {
             logout.logoutSuccessUrl("/")
         )
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers("/","/login/**").permitAll()
+            .requestMatchers("/*","/login/**").permitAll()
             .requestMatchers( "/swagger-ui/**","/api-docs/**","/api*").permitAll()
-            .anyRequest().authenticated());
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+            .authenticated());
+
     return http.build();
   }
 }
