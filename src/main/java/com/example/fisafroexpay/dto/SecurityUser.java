@@ -4,9 +4,11 @@ import com.example.fisafroexpay.entity.User;
 import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@ToString
 @Getter
 public class SecurityUser implements UserDetails {
 
