@@ -117,13 +117,17 @@
         .submit-btn:hover {
             background-color: #0056b3;
         }
+
+        .readonly-input {
+            background-color: #e9ecef;
+        }
     </style>
 </head>
 <body>
 
 <div class="transfer-container">
     <h2>송금하기</h2>
-    <form>
+    <form id="transfer-form">
         <div class="form-group">
             <label for="send-amount">송금 금액</label>
             <div class="input-group">
@@ -132,13 +136,21 @@
                     <button class="dropbtn" id="send-currency">KRW</button>
                     <div class="dropdown-content" id="send-currency-options">
                         <a href="#" onclick="selectSendCurrency('KRW')">KRW</a>
+                        <a href="#" onclick="selectSendCurrency('USD')">USD</a>
+                        <a href="#" onclick="selectSendCurrency('EUR')">EUR</a>
+                        <a href="#" onclick="selectSendCurrency('JPY')">JPY</a>
+                        <a href="#" onclick="selectSendCurrency('CNY')">CNY</a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <label for="recipient-account">받는 사람 계좌번호</label>
-            <input type="text" id="recipient-account" placeholder="계좌번호 입력">
+            <input type="text" id="recipient-account" placeholder="계좌번호 입력" onkeyup="fetchAccountInfo()">
+        </div>
+        <div class="form-group">
+            <label for="account-holder-name">받는 사람 이름</label>
+            <input type="text" id="account-holder-name" class="readonly-input" readonly>
         </div>
         <div class="form-group">
             <label for="receive-amount">최종 송금 금액</label>
@@ -155,7 +167,7 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="submit-btn">송금 완료</button>
+        <button type="button" class="submit-btn" onclick="submitForm()">송금 완료</button>
     </form>
 </div>
 
@@ -167,12 +179,18 @@
         'EUR': 1230.45
     };
 
+    const accounts = {
+        '123456789012': { name: '홍길동', currency: 'USD' },
+        '234567890123': { name: '김철수', currency: 'KRW' },
+        '345678901234': { name: '이영희', currency: 'EUR' }
+    };
+
     document.addEventListener("DOMContentLoaded", function() {
         const sendAmount = localStorage.getItem("transferAmount");
-        document.getElementById('send-amount').value = formatNumber(sendAmount);
-        document.getElementById('receive-currency').textContent = 'USD';
-
-        calculateReceiveAmount();
+        if (sendAmount) {
+            document.getElementById('send-amount').value = formatNumber(sendAmount);
+            calculateReceiveAmount();
+        }
 
         document.querySelectorAll('#receive-currency-options a').forEach(option => {
             option.addEventListener('click', function() {
@@ -201,6 +219,24 @@
     function selectReceiveCurrency(currency) {
         document.getElementById('receive-currency').textContent = currency;
         calculateReceiveAmount();
+    }
+
+    function fetchAccountInfo() {
+        const accountNumber = document.getElementById("recipient-account").value;
+        const account = accounts[accountNumber] || {};
+        document.getElementById("account-holder-name").value = account.name || '정보 없음';
+    }
+
+    function submitForm() {
+        const accountNumber = document.getElementById("recipient-account").value;
+        const account = accounts[accountNumber];
+        if (account) {
+            localStorage.setItem("recipientName", account.name);
+            localStorage.setItem("recipientCurrency", account.currency);
+            window.location.href = "confirmation.html";
+        } else {
+            alert('유효하지 않은 계좌번호입니다.');
+        }
     }
 </script>
 
