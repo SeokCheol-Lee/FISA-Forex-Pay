@@ -34,5 +34,15 @@ public class Account extends BaseEntity{
     private String name;
     private String accountNumber;
     private String currencyCode;
-    private BigDecimal balance;
+    private Long balance;
+
+    public void withdraw(Long amount) {
+        if (amount <= 5000) {
+            throw new IllegalArgumentException("출금 금액은 5000원 보다 커야 합니다.");
+        }
+        if (this.balance < amount) {
+            throw new IllegalStateException("잔액이 부족합니다.");
+        }
+        this.balance -= amount;
+    }
 }
