@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @Service
@@ -33,19 +34,22 @@ public class ExchangeService {
         BigDecimal exchangeFeeKRW = initAmountDecimal.multiply(BigDecimal.valueOf(0.015));
 
         // 환전 수수료 (외화)
-        BigDecimal exchangeFee = exchangeFeeKRW.multiply(exchangeRate.getBaseExchangeRate());
+        BigDecimal exchangeFee = exchangeFeeKRW.divide(exchangeRate.getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN);
 
         // 최종 환전 금액 (초기 금액 * 매매 기준율 - 환전수수료)
-        BigDecimal exchangedAmount = initAmountDecimal.multiply(exchangeRate.getBaseExchangeRate()).subtract(exchangeFee);
+        BigDecimal exchangedAmount = initAmountDecimal.divide(exchangeRate.getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN).subtract(exchangeFee);
 
 
-        return ExchangeDetail.builder()
+        ExchangeDetail exchangeDetail = ExchangeDetail.builder()
                 .exchangeRate(exchangeRate)
                 .initAmount(initAmount)
                 .exchangeFee(exchangeFeeKRW)
                 .finalAmount(exchangedAmount)
                 .status(Status.COMPLETED)
                 .build();
+        exchangeDetailRepository.save(exchangeDetail);
+        return exchangeDetail;
+
     }
 
 
