@@ -255,8 +255,9 @@
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-    // 예시 환율
-    const exchangeRates = {
+
+    // 기본값
+    let exchangeRates = {
         'USD': 1142.03,
         'JPY': 7.56,
         'CNY': 160.12,
@@ -292,6 +293,16 @@
 
             });
 
+        fetch('/exchange-rates')
+            .then(response => response.json())
+            .then(exchangeRates => {
+                console.log('Exchange rates:', exchangeRates);
+                // 환율 데이터를 사용하여 추가 작업 수행
+                initializeExchangeRates(exchangeRates);
+
+            })
+            .catch(error => console.error('Error fetching exchange rates:', error));
+
         // 로그아웃 처리
         document.getElementById("logout-link").addEventListener("click", function() {
             fetch('/logout', { method: 'POST' })
@@ -323,6 +334,14 @@
         document.getElementById("f").addEventListener('click', function() {
             window.location.href = 'mypage.html';
         });
+
+
+        // 비동기로 환율 데이터 가져오는 함수
+        function initializeExchangeRates(map){
+            exchangeRates = map;
+            console.log("init:");
+            console.log(exchangeRates);
+        }
     });
 
 </script>

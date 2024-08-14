@@ -14,7 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -119,5 +121,22 @@ public class ExchangeRateService {
         String jsonString = fetchExchangeRateData();
         List<ExchangeRateDTO> exchangeRateDTOs = parseExchangeRateData(jsonString);
         saveExchangeRateDTO(exchangeRateDTOs);
+    }
+
+
+    public Map<String, BigDecimal> getNewestCurrencyRateMap(){
+
+        ExchangeRate rateUSD = exchangeRateRepository.findByTargetCurrency("USD");
+        ExchangeRate rateCNY = exchangeRateRepository.findByTargetCurrency("CNY");
+        ExchangeRate rateJPY = exchangeRateRepository.findByTargetCurrency("JPY");
+        ExchangeRate rateEUR = exchangeRateRepository.findByTargetCurrency("EUR");
+
+        Map<String, BigDecimal> map = new HashMap<>();
+        map.put("USD", rateUSD.getBaseExchangeRate());
+        map.put("CNY", rateCNY.getBaseExchangeRate());
+        map.put("JPY", rateJPY.getBaseExchangeRate());
+        map.put("EUR", rateEUR.getBaseExchangeRate());
+
+        return map;
     }
 }
