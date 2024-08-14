@@ -19,7 +19,7 @@ public class ExchangeService {
     private final ExchangeRateRepository exchangeRateRepository;
     private final ExchangeDetailRepository exchangeDetailRepository;
 
-    public ExchangeDetail createExchangeDetail(BigDecimal initAmount, String currencyCode) {
+    public ExchangeDetail createExchangeDetail(Long initAmount, String currencyCode) {
         log.info("[ExchangeService.createExchangeDetail]");
 
         // 환율 받아오기
@@ -29,13 +29,14 @@ public class ExchangeService {
 
 
         // 환전 수수료 (원화, 환전 수수료율 1.5% 적용, 테이블에 저장)
-        BigDecimal exchangeFeeKRW = initAmount.multiply(BigDecimal.valueOf(0.015));
+        BigDecimal initAmountDecimal = BigDecimal.valueOf(initAmount);
+        BigDecimal exchangeFeeKRW = initAmountDecimal.multiply(BigDecimal.valueOf(0.015));
 
         // 환전 수수료 (외화)
         BigDecimal exchangeFee = exchangeFeeKRW.multiply(exchangeRate.getBaseExchangeRate());
 
         // 최종 환전 금액 (초기 금액 * 매매 기준율 - 환전수수료)
-        BigDecimal exchangedAmount = initAmount.multiply(exchangeRate.getBaseExchangeRate()).subtract(exchangeFee);
+        BigDecimal exchangedAmount = initAmountDecimal.multiply(exchangeRate.getBaseExchangeRate()).subtract(exchangeFee);
 
 
         return ExchangeDetail.builder()
