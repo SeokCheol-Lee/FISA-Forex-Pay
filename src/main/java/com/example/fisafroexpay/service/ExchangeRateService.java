@@ -82,8 +82,8 @@ public class ExchangeRateService {
         List<ExchangeRate> exchangeRates = exchangeRateDTOs.stream()
                 .map(dto -> ExchangeRate.builder()
                         .baseExchangeRate((BigDecimal.valueOf(Double.parseDouble(dto.getDealBasR().replace(",", "")))))
-                        .baseCurrency(dto.getCurUnit())
-                        .targetCurrency(dto.getCurNm())
+                        .baseCurrency("KRW")
+                        .targetCurrency(dto.getCurUnit())
                         .build())
                 .collect(Collectors.toList());
         exchangeRateRepository.saveAll(exchangeRates);
@@ -113,7 +113,7 @@ public class ExchangeRateService {
 
     }
     // 1시간에 한 번씩
-    @Scheduled(cron = "0 50 * * * ?")
+    @Scheduled(cron = "0 55 * * * ?")
     public void execute() {
         logger.info("cron");
         String jsonString = fetchExchangeRateData();
