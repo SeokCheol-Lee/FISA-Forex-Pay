@@ -6,6 +6,8 @@ import com.example.fisafroexpay.repository.ExchangeRateRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,14 +23,14 @@ import java.util.stream.Collectors;
 public class ExchangeRateService {
 
     private static final Logger logger = Logger.getLogger(ExchangeRateService.class.getName());
-    private static final String authkey = "7zNlvx0a71eFW32VdPuw3RIPgGOKk45p";
-    public static String date = "20240813"; // getCurrentDate();
-    private static final String API_URL = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=" + authkey + "&searchdate=" + date + "&data=AP01";
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final RestTemplate restTemplate = new RestTemplate();
 
     private final ExchangeRateRepository exchangeRateRepository;
+
+    @Value("${api.key}")
+    private String authkey;
+
 
     @Autowired
     public ExchangeRateService(ExchangeRateRepository exchangeRateRepository) {
@@ -42,7 +44,7 @@ public class ExchangeRateService {
      */
     public String fetchExchangeRateData() {
         try {
-            String response = restTemplate.getForObject(API_URL, String.class);
+            String response = restTemplate.getForObject(getUrl(), String.class);
             if (response != null) {
                 return response;
             } else {
@@ -97,15 +99,23 @@ public class ExchangeRateService {
     /**
      * 현재 날짜에 자동 매핑되는 코드입니다
      **/
-//    private static String getCurrentDate() {
-//        LocalDate today = LocalDate.now(); // 현재 날짜
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // 날짜 형식
-//        return today.format(formatter); // 날짜를 문자열로 포맷
-//    }
+    private static String getCurrentDate() {
+        LocalDate today = LocalDate.now(); // 현재 날짜
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // 날짜 형식
+        return today.format(formatter); // 날짜를 문자열로 포맷
+    }
 
+    private String getUrl(){
+        String date = getCurrentDate();
+        return "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=" + authkey + "&searchdate=" + date + "&data=AP01";
 
-//    public void m1() {
-        // TODO: 1시간마다 Service 단 메서드 호출하기
-//        saveExchangeRateDTO(parseExchangeRateData(fetchExchangeRateData()));
-//    }
+    }
+    // 1시간에 한 번씩
+    @Scheduled(cron = "0 0 * * * ?")
+    public void execute() {
+        logger.info("cron");
+        String jsonString = fetchExchangeRateData();
+        List<ExchangeRateDTO> exchangeRateDTOs = parseExchangeRateData(jsonString);
+        saveExchangeRateDTO(exchangeRateDTOs);
+    }
 }
