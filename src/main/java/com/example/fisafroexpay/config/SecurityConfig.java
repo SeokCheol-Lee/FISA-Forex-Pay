@@ -39,7 +39,7 @@ public class SecurityConfig  {
                 .permitAll()
         )
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers("/*","/login/**").permitAll()
+            .requestMatchers("/**","/login/**","/transfer/**").permitAll()
             .requestMatchers( "/swagger-ui/**","/api-docs/**","/api*").permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
             .authenticated());
