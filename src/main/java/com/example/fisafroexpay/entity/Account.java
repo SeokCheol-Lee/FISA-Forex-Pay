@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.AuditOverride;
 
+import java.math.BigDecimal;
+
 @Entity
 @Builder
 @Getter
@@ -32,5 +34,5 @@ public class Account extends BaseEntity{
     private String name;
     private String accountNumber;
     private String currencyCode;
-    private Long balance;
+    private BigDecimal balance;
 }
