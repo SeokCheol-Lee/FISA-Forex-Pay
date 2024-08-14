@@ -34,7 +34,7 @@ public class TransferService {
 
         // 송금자의 계좌 확인
         Account senderAccount = accountService.getSenderAccountByAccountNumber(req.getAccountNumber());
-
+        senderAccount.withdraw(req.getAmount());
         // 수신자 계좌 확인 또는 생성
         TotalAccount receiverAccount = totalAccountRepository.findTotalAccountByAccountNumber(req.getReceiverAccountNumber())
                 .orElseThrow(() -> new RuntimeException("수신자 계좌가 유효하지 않습니다."));
