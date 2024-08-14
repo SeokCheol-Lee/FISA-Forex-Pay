@@ -27,10 +27,11 @@ public class TransferService {
 
     private static final BigDecimal TRANSFER_FEE_KRW = BigDecimal.valueOf(5000);
 
+/*
     public TransferResponse processTransfer(TransferRequest req, HttpSession session) {
         log.info("TransferService.processTransfer");
         // user 정보 확인
-        User user = userRepository.findById(req.getUserId()).orElseThrow(() -> new RuntimeException("유저 ID 올바르지 않음"));
+//        User user = userRepository.findById(req.getUserEmail()).orElseThrow(() -> new RuntimeException("유저 ID 올바르지 않음"));
 
         // 송금자의 계좌 확인
         Account senderAccount = accountService.getSenderAccountByAccountNumber(req.getAccountNumber());
@@ -75,8 +76,9 @@ public class TransferService {
         session.setAttribute("transferDetail", transferDetail);
         return response;
     }
+    */
 
-
+/*
     public TransferResponse confirmTransfer(TransferRequest req, HttpSession session) {
         log.info("[TransferService.confirmTransfer]");
         TransferDetail transferDetail = (TransferDetail) session.getAttribute("transferDetail");
@@ -110,4 +112,54 @@ public class TransferService {
 
     }
 
+ */
+
+    public TransferResponse processAndConfirmTransfer(TransferRequest req) {
+        log.info("TransferService.processAndConfirmTransfer");
+
+        // user 정보 확인
+        User user = userRepository.findByEmail(req.getUserEmail())
+                .orElseThrow(() -> new RuntimeException("유저 email 올바르지 않음"));
+
+        // 송금자의 계좌에서 출금
+        Account senderAccount = accountService.getSenderAccountByAccountNumber(req.getAccountNumber());
+        senderAccount.withdraw(req.getAmount());
+
+        // 수신자 계좌 확인 또는 생성
+        TotalAccount receiverAccount = totalAccountRepository.findTotalAccountByAccountNumber(req.getReceiverAccountNumber())
+                .orElseThrow(() -> new RuntimeException("수신자 계좌가 유효하지 않습니다."));
+
+        // 환율 계산 (환전 서비스 호출)
+        ExchangeDetail exchangeDetail = exchangeService.createExchangeDetail(req.getAmount(), req.getReceiverCurrencyCode());
+
+        // 송금 수수료 계산(외화)
+        BigDecimal transferFee = exchangeDetail.getExchangeRate()
+                .getBaseExchangeRate()
+                .multiply(TRANSFER_FEE_KRW);
+        BigDecimal exchangedAmount = exchangeDetail.getFinalAmount();
+        BigDecimal lastAmount = exchangedAmount.subtract(transferFee);
+        BigDecimal totalTransferFee = transferFee.add(exchangeDetail.getExchangeFee());
+
+        // TransferDetail 생성 및 저장
+        TransferDetail transferDetail = TransferDetail.builder()
+                .account(senderAccount)
+                .initAmount(exchangedAmount)
+                .lastAmount(lastAmount)
+                .transferFee(transferFee)
+                .status(Status.COMPLETED)
+                .build();
+
+        transferDetail = transferDetailRepository.save(transferDetail);
+
+        // TransferResponse 생성 및 반환
+        return new TransferResponse(
+                transferDetail.getId(),
+                user.getUsername(),
+                senderAccount.getAccountNumber(),
+                receiverAccount.getUserName(),
+                receiverAccount.getAccountNumber(),
+                lastAmount,
+                totalTransferFee
+        );
+    }
 }
