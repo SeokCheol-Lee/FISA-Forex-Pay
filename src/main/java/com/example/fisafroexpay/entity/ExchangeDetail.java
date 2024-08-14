@@ -33,7 +33,7 @@ public class ExchangeDetail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_rate_id")
     private ExchangeRate exchangeRate;
-    private BigDecimal initAmount;
+    private Long initAmount;
     private BigDecimal finalAmount;
     private BigDecimal exchangeFee;
     @Enumerated(EnumType.STRING)
