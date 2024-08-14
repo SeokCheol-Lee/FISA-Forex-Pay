@@ -281,13 +281,13 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         const isLoggedIn = localStorage.getItem("isLoggedIn");
-        const username = localStorage.getItem("username");
+        const useremail = localStorage.getItem("useremail");
 
-        if (isLoggedIn === "true" && username) {
+        if (isLoggedIn === "true" && useremail) {
             document.getElementById("login-link").style.display = 'none';
             document.getElementById("signup-link").style.display = 'none';
             document.getElementById("user-link").style.display = 'inline';
-            document.getElementById("user-link").textContent = username + "님";
+            document.getElementById("user-link").textContent = useremail + "님";
             document.getElementById("logout-link").style.display = 'inline';
 
             document.getElementById("continue-btn").textContent = "송금하기";
@@ -303,7 +303,7 @@
 
         document.getElementById("logout-link").addEventListener("click", function() {
             localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("username");
+            localStorage.removeItem("useremail");
             alert('로그아웃 되었습니다.');
             window.location.href = 'login.html';
         });
