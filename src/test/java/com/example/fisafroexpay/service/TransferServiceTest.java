@@ -96,13 +96,13 @@ class TransferServiceTest {
         request.setAccountNumber("123456789");
         request.setReceiverAccountNumber("987654321");
         request.setReceiverCurrencyCode("USD");
-        request.setAmount(BigDecimal.valueOf(1000));
+        request.setAmount(1000L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(accountService.getSenderAccountByAccountNumber("123456789")).thenReturn(senderAccount);
         when(totalAccountRepository.findTotalAccountByAccountNumber("987654321"))
                 .thenReturn(Optional.of(receiverAccount));
-        when(exchangeService.createExchangeDetail(BigDecimal.valueOf(1000), "USD"))
+        when(exchangeService.createExchangeDetail(1000L, "USD"))
                 .thenReturn(exchangeDetail);
         when(session.getAttribute("transferDetail")).thenReturn(null);
 
