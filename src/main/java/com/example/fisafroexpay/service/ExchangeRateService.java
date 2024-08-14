@@ -19,6 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.example.fisafroexpay.util.SslUtils.disableSslVerification;
+
 @Service
 public class ExchangeRateService {
 
@@ -30,7 +32,6 @@ public class ExchangeRateService {
 
     @Value("${api.key}")
     private String authkey;
-
 
     @Autowired
     public ExchangeRateService(ExchangeRateRepository exchangeRateRepository) {
@@ -44,6 +45,7 @@ public class ExchangeRateService {
      */
     public String fetchExchangeRateData() {
         try {
+            disableSslVerification();
             String response = restTemplate.getForObject(getUrl(), String.class);
             if (response != null) {
                 return response;
@@ -111,7 +113,7 @@ public class ExchangeRateService {
 
     }
     // 1시간에 한 번씩
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 50 * * * ?")
     public void execute() {
         logger.info("cron");
         String jsonString = fetchExchangeRateData();
