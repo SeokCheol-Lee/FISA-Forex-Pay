@@ -280,38 +280,51 @@
     });
 
     document.addEventListener("DOMContentLoaded", function() {
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
-        const username = localStorage.getItem("username");
+        // 로컬 스토리지에서 로그인 상태와 사용자 이름을 가져옴
+        fetch('/profile')
+        .then(response => response.text())
+        .then(username => {
+            if (username !== "anonymousUser") {
+                updateUI(username)
+            } else {
+                updateUI(null)
+            }
 
-        if (isLoggedIn === "true" && username) {
-            document.getElementById("login-link").style.display = 'none';
-            document.getElementById("signup-link").style.display = 'none';
-            document.getElementById("user-link").style.display = 'inline';
-            document.getElementById("user-link").textContent = username + "님";
-            document.getElementById("logout-link").style.display = 'inline';
-
-            document.getElementById("continue-btn").textContent = "송금하기";
-            document.getElementById("continue-btn").addEventListener("click", function() {
-                localStorage.setItem("transferAmount", document.getElementById('you-send').value.replace(/,/g, ''));
-                window.location.href = 'transfer.html';
-            });
-        } else {
-            document.getElementById("continue-btn").addEventListener("click", function() {
-                window.location.href = 'login.html';
-            });
-        }
-
-        document.getElementById("logout-link").addEventListener("click", function() {
-            localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("username");
-            alert('로그아웃 되었습니다.');
-            window.location.href = 'login.html';
         });
 
-        document.getElementById("user-link").addEventListener('click', function() {
+        // 로그아웃 처리
+        document.getElementById("logout-link").addEventListener("click", function() {
+            fetch('/logout', { method: 'POST' })
+            .then(() => {
+                alert('로그아웃 되었습니다.');
+                updateUI(null)
+                window.location.href = 'index.html';
+            });
+        });
+
+        // UI 업데이트 함수
+        function updateUI(username) {
+            if (username) {
+                document.getElementById("login-link").style.display = 'none';
+                document.getElementById("signup-link").style.display = 'none';
+                document.getElementById("user-link").style.display = 'inline';
+                document.getElementById("user-link").textContent = username + "님";
+                document.getElementById("logout-link").style.display = 'inline';
+
+                document.getElementById("continue-btn").textContent = "송금하기";
+                document.getElementById("continue-btn").addEventListener("click", function() {
+                    localStorage.setItem("transferAmount", document.getElementById('you-send').value.replace(/,/g, ''));
+                    window.location.href = 'transfer.html';
+                });
+            }
+        }
+
+        // 사용자 링크 클릭 시 동작
+        document.getElementById("f").addEventListener('click', function() {
             window.location.href = 'mypage.html';
         });
     });
+
 </script>
 
 </body>
