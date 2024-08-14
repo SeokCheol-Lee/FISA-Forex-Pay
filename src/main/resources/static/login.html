@@ -105,15 +105,15 @@
 
 <script>
   document.getElementById('login-form').addEventListener('submit', function(event) {
-    event.preventDefault();
+    eventy.preventDefault();
 
     // 실제 로그인 처리 로직이 필요합니다.
     // 여기는 예시로 로그인 성공 시의 로직입니다.
-    const username = document.getElementById('username').value;
+    const useremail = document.getElementById('useremail').value;
 
     // 로그인 성공 가정
     localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("username", username);
+    localStorage.setItem("useremail", useremail);
 
     // 성공적으로 로그인 후 index.html로 리디렉션
     window.location.href = 'index.html';
