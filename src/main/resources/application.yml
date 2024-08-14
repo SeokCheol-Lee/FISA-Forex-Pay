@@ -19,7 +19,7 @@ spring:
 server:
   servlet:
     session:
-      timeout: 1m
+      timeout: 1h
 
 springdoc:
   swagger-ui:

@@ -127,11 +127,11 @@
 
 <div class="transfer-container">
     <h2>송금하기</h2>
-    <form id="transfer-form">
+    <form action="/transfer/trade" method="post">
         <div class="form-group">
-            <label for="send-amount">송금 금액</label>
+            <label for="amount">송금 금액</label>
             <div class="input-group">
-                <input type="text" id="send-amount" readonly>
+                <input type="text" id="amount" name="amount">
                 <div class="dropdown">
                     <button class="dropbtn" id="send-currency">KRW</button>
                     <div class="dropdown-content" id="send-currency-options">
@@ -145,20 +145,20 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="recipient-account">받는 사람 계좌번호</label>
-            <input type="text" id="recipient-account" placeholder="계좌번호 입력" onkeyup="fetchAccountInfo()">
+            <label for="receiverAccountNumber">받는 사람 계좌번호</label>
+            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력" onkeyup="fetchAccountInfo()">
         </div>
         <div class="form-group">
-            <label for="account-holder-name">받는 사람 이름</label>
-            <input type="text" id="account-holder-name" class="readonly-input" readonly>
+            <label for="receiverName">받는 사람 이름</label>
+            <input type="text" id="receiverName" name="receiverName" class="readonly-input" >
         </div>
         <div class="form-group">
             <label for="receive-amount">최종 송금 금액</label>
             <div class="input-group">
-                <input type="text" id="receive-amount" readonly>
+                <input type="text" id="receive-amount" name="receiveAmount" readonly>
                 <div class="dropdown">
-                    <button class="dropbtn" id="receive-currency">USD</button>
-                    <div class="dropdown-content" id="receive-currency-options">
+                    <button class="dropbtn" id="receiverCurrencyCode">USD</button>
+                    <div class="dropdown-content" id="receiverCurrencyCode2">
                         <a href="#" onclick="selectReceiveCurrency('USD')">USD</a>
                         <a href="#" onclick="selectReceiveCurrency('JPY')">JPY</a>
                         <a href="#" onclick="selectReceiveCurrency('CNY')">CNY</a>
@@ -167,7 +167,9 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="submit-btn" onclick="submitForm()">송금 완료</button>
+        <!-- Hidden input field to store the receiver currency code -->
+        <input type="hidden" id="receiverCurrencyCodeInput" name="receiverCurrencyCode" value="USD">
+        <button type="submit" class="submit-btn">송금 완료</button>
     </form>
 </div>
 
@@ -227,7 +229,7 @@
         document.getElementById("account-holder-name").value = account.name || '정보 없음';
     }
 
-    function submitForm() {
+   /* function submitForm() {
         const accountNumber = document.getElementById("recipient-account").value;
         const account = accounts[accountNumber];
         if (account) {
@@ -237,7 +239,7 @@
         } else {
             alert('유효하지 않은 계좌번호입니다.');
         }
-    }
+    }*/
 </script>
 
 </body>

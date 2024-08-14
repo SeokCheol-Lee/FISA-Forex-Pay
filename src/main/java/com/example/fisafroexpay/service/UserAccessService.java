@@ -19,7 +19,7 @@ public class UserAccessService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void registerUser(RegisterForm form) {
+    public User registerUser(RegisterForm form) {
         if (userRepository.existsByEmail(form.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -33,6 +33,7 @@ public class UserAccessService {
                 .age(form.getAge()).build();
 
         userRepository.save(user);
+        return user;
     }
 
 }
