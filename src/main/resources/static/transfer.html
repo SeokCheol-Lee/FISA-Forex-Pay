@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>송금하기 - FISA Forex Pay</title>
+    <title>송금 완료 - FISA Forex Pay</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,228 +16,132 @@
             height: 100vh;
         }
 
-        .transfer-container {
+        .confirmation-container {
             background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 600px;
-        }
-
-        .transfer-container h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333;
+            max-width: 500px;
             text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .input-group input {
-            flex: 1;
-            margin-right: 10px;
-        }
-
-        .dropdown {
             position: relative;
-            display: inline-block;
-            width: 120px;
         }
 
-        .dropbtn {
-            padding: 10px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            border-radius: 5px;
-            text-align: center;
+        .confirmation-container h1 {
+            font-size: 24px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-container p {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirmation-container .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .confirmation-container .icon img {
             width: 100%;
-            box-sizing: border-box;
+            height: auto;
         }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            min-width: 100px;
-            z-index: 1;
-            width: 100%;
-            box-sizing: border-box;
+        .confirmation-details {
+            background-color: #f1f3f5;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
         }
 
-        .dropdown-content a {
-            color: black;
-            padding: 10px;
-            text-decoration: none;
-            display: block;
+        .confirmation-details p {
+            margin: 8px 0;
+            color: #333;
         }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
+        .confirmation-details .label {
+            font-weight: bold;
+            color: #007bff;
         }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
+        .confirmation-buttons {
+            margin-top: 30px;
         }
 
-        .submit-btn {
+        .confirmation-buttons a, .confirmation-buttons button {
             background-color: #007bff;
             color: white;
-            padding: 15px;
-            width: 100%;
+            padding: 12px 18px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: background-color 0.3s ease;
         }
 
-        .submit-btn:hover {
+        .confirmation-buttons a:hover, .confirmation-buttons button:hover {
             background-color: #0056b3;
         }
 
-        .readonly-input {
-            background-color: #e9ecef;
+        .confirmation-buttons .cancel-btn {
+            background-color: #dc3545;
+        }
+
+        .confirmation-buttons .cancel-btn:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
 
-<div class="transfer-container">
-    <h2>송금하기</h2>
-    <form id="transfer-form">
-        <div class="form-group">
-            <label for="send-amount">송금 금액</label>
-            <div class="input-group">
-                <input type="text" id="send-amount" readonly>
-                <div class="dropdown">
-                    <button class="dropbtn" id="send-currency">KRW</button>
-                    <div class="dropdown-content" id="send-currency-options">
-                        <a href="#" onclick="selectSendCurrency('KRW')">KRW</a>
-                        <a href="#" onclick="selectSendCurrency('USD')">USD</a>
-                        <a href="#" onclick="selectSendCurrency('EUR')">EUR</a>
-                        <a href="#" onclick="selectSendCurrency('JPY')">JPY</a>
-                        <a href="#" onclick="selectSendCurrency('CNY')">CNY</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="recipient-account">받는 사람 계좌번호</label>
-            <input type="text" id="recipient-account" placeholder="계좌번호 입력" onkeyup="fetchAccountInfo()">
-        </div>
-        <div class="form-group">
-            <label for="account-holder-name">받는 사람 이름</label>
-            <input type="text" id="account-holder-name" class="readonly-input" readonly>
-        </div>
-        <div class="form-group">
-            <label for="receive-amount">최종 송금 금액</label>
-            <div class="input-group">
-                <input type="text" id="receive-amount" readonly>
-                <div class="dropdown">
-                    <button class="dropbtn" id="receive-currency">USD</button>
-                    <div class="dropdown-content" id="receive-currency-options">
-                        <a href="#" onclick="selectReceiveCurrency('USD')">USD</a>
-                        <a href="#" onclick="selectReceiveCurrency('JPY')">JPY</a>
-                        <a href="#" onclick="selectReceiveCurrency('CNY')">CNY</a>
-                        <a href="#" onclick="selectReceiveCurrency('EUR')">EUR</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <button type="button" class="submit-btn" onclick="submitForm()">송금 완료</button>
-    </form>
+<div class="confirmation-container">
+    <div class="icon">
+        <!-- 여기에 직접 갖고 있는 이미지 링크를 넣으세요 -->
+        <img src="check.png" alt="Check Icon">
+    </div>
+    <h1>송금 완료</h1>
+    <p id="confirmation-message"></p>
+
+    <div class="confirmation-details">
+        <p><span class="label">출금 계좌:</span> 1234-5678-9012</p>
+        <p><span class="label">받는 분 계좌:</span> <span id="recipient-account"></span></p>
+        <p><span class="label">수수료:</span> 5,000 원</p>
+    </div>
+
+    <div class="confirmation-buttons">
+        <a href="mypage.html">거래내역 보러가기</a>
+        <button onclick="window.location.href='index.html'">닫기</button>
+    </div>
 </div>
 
 <script>
-    const exchangeRates = {
-        'USD': 1142.03,
-        'JPY': 7.56,
-        'CNY': 160.12,
-        'EUR': 1230.45
-    };
-
-    const accounts = {
-        '123456789012': { name: '홍길동', currency: 'USD' },
-        '234567890123': { name: '김철수', currency: 'KRW' },
-        '345678901234': { name: '이영희', currency: 'EUR' }
-    };
-
     document.addEventListener("DOMContentLoaded", function() {
-        const sendAmount = localStorage.getItem("transferAmount");
-        if (sendAmount) {
-            document.getElementById('send-amount').value = formatNumber(sendAmount);
-            calculateReceiveAmount();
-        }
+        // Get data from localStorage
+        const recipientName = localStorage.getItem("recipientName") || '정보 없음';
+        const transferAmount = localStorage.getItem("transferAmount") || '정보 없음';
+        const recipientAccount = localStorage.getItem("recipientAccount") || '정보 없음';
+        const transferCurrency = localStorage.getItem("transferCurrency") || '정보 없음';
 
-        document.querySelectorAll('#receive-currency-options a').forEach(option => {
-            option.addEventListener('click', function() {
-                selectReceiveCurrency(this.textContent);
-            });
-        });
+        // Set message and account info
+        document.getElementById("confirmation-message").textContent = `${recipientName}님께 ${transferAmount} ${transferCurrency} 이체 완료되었습니다.`;
+        document.getElementById("recipient-account").textContent = recipientAccount;
+
+        // Clear localStorage
+        localStorage.removeItem("recipientName");
+        localStorage.removeItem("transferAmount");
+        localStorage.removeItem("recipientAccount");
+        localStorage.removeItem("transferCurrency");
     });
-
-    function formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    function calculateReceiveAmount() {
-        const sendAmount = parseFloat(localStorage.getItem("transferAmount")) || 0;
-        const receiveCurrency = document.getElementById('receive-currency').textContent;
-        const rate = exchangeRates[receiveCurrency] || 1;
-        const convertedAmount = (sendAmount / rate).toFixed(2);
-        document.getElementById('receive-amount').value = formatNumber(convertedAmount);
-    }
-
-    function selectSendCurrency(currency) {
-        document.getElementById('send-currency').textContent = currency;
-        calculateReceiveAmount();
-    }
-
-    function selectReceiveCurrency(currency) {
-        document.getElementById('receive-currency').textContent = currency;
-        calculateReceiveAmount();
-    }
-
-    function fetchAccountInfo() {
-        const accountNumber = document.getElementById("recipient-account").value;
-        const account = accounts[accountNumber] || {};
-        document.getElementById("account-holder-name").value = account.name || '정보 없음';
-    }
-
-    function submitForm() {
-        const accountNumber = document.getElementById("recipient-account").value;
-        const account = accounts[accountNumber];
-        if (account) {
-            localStorage.setItem("recipientName", account.name);
-            localStorage.setItem("recipientCurrency", account.currency);
-            window.location.href = "confirmation.html";
-        } else {
-            alert('유효하지 않은 계좌번호입니다.');
-        }
-    }
 </script>
 
 </body>
