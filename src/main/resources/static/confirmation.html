@@ -3,238 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>거래 확인 - FISA Forex Pay</title>
+    <title>송금 완료 - FISA Forex Pay</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        .navbar {
-            background-color: #fff;
-            padding: 15px;
-            border-bottom: 1px solid #e7e7e7;
-        }
-
-        .navbar-container {
+            background-color: #f8f9fa; /* 원래 배경색과 동일하게 설정 */
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+            height: 100vh;
         }
 
-        .navbar-logo {
-            font-size: 24px;
-            font-weight: bold;
+        .confirmation-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .confirmation-container h1 {
+            font-size: 28px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-container p {
+            font-size: 18px;
             color: #333;
+            margin-bottom: 20px;
         }
 
-        .navbar-links {
-            display: flex;
-            align-items: center;
+        .confirmation-container .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
         }
 
-        .navbar-links a {
-            color: #333;
-            text-decoration: none;
-            margin-left: 15px;
+        .confirmation-container .icon img {
+            width: 100%;
+            height: auto;
+        }
+
+        .confirmation-details {
+            background-color: #f8f9fa; /* 원래 배경색과 동일하게 설정 */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .confirmation-details p {
             font-size: 16px;
+            margin: 10px 0;
+            color: #333;
         }
 
-        .navbar-links a:hover {
+        .confirmation-details .label {
+            font-weight: bold;
             color: #007bff;
         }
 
-        .content-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 50px 20px;
+        .confirmation-buttons {
+            margin-top: 30px;
         }
 
-        .confirmation-section {
-            margin-bottom: 30px;
-        }
-
-        .confirmation-section h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .confirmation-section p {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .transaction-details, .account-info {
-            margin-bottom: 30px;
-        }
-
-        .transaction-details h2, .account-info h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .transaction-details table, .account-info table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .transaction-details th, .transaction-details td,
-        .account-info th, .account-info td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .transaction-details th, .account-info th {
-            background-color: #f2f2f2;
-        }
-
-        .back-btn, .close-btn {
+        .confirmation-buttons a, .confirmation-buttons button {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            display: block;
-            text-align: center;
-            width: 150px;
-            margin-left: auto;
-            margin-right: auto;
             text-decoration: none;
-            margin-top: 20px;
+            display: inline-block;
+            margin: 10px;
         }
 
-        .back-btn:hover, .close-btn:hover {
+        .confirmation-buttons a:hover, .confirmation-buttons button:hover {
             background-color: #0056b3;
         }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            text-align: center;
+        .confirmation-buttons .cancel-btn {
+            background-color: #dc3545;
+        }
+
+        .confirmation-buttons .cancel-btn:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="navbar-container">
-        <div class="navbar-logo">
-            FISA Forex Pay
-        </div>
-        <div class="navbar-links">
-            <a href="index.html" id="main-page-link">메인 페이지</a>
-            <a href="mypage.html" id="mypage-link">마이페이지</a>
-        </div>
-    </div>
-</div>
 
-<div class="content-wrapper">
-    <div class="confirmation-section">
-        <h2>거래 확인</h2>
-        <p>거래가 성공적으로 완료되었습니다.</p>
+<div class="confirmation-container">
+    <div class="icon">
+        <!-- 여기에 직접 갖고 있는 이미지 링크를 넣으세요 -->
+        <img src="check.png" alt="Check Icon">
+    </div>
+    <h1>송금 완료</h1>
+    <p id="confirmation-message"></p>
+
+    <div class="confirmation-details">
+        <p><span class="label">출금 계좌:</span> 1234-5678-9012</p>
+        <p><span class="label">받는 분 계좌:</span> <span id="recipient-account"></span></p>
+        <p><span class="label">수수료:</span> 5,000 원</p>
     </div>
 
-    <div class="transaction-details">
-        <h2>거래 내역</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>날짜</th>
-                <th>수신인</th>
-                <th>송금 금액</th>
-                <th>통화</th>
-            </tr>
-            </thead>
-            <tbody id="transaction-table-body">
-            <!-- 거래 내역은 자바스크립트로 동적으로 추가됩니다 -->
-            </tbody>
-        </table>
-    </div>
-
-    <div class="account-info">
-        <h2>계좌 정보</h2>
-        <form id="account-form">
-            <label for="account-number">계좌번호:</label>
-            <input type="text" id="account-number" name="accountNumber" required>
-            <br><br>
-            <label for="account-holder-name">계좌 소유자:</label>
-            <input type="text" id="account-holder-name" name="accountHolderName" readonly>
-            <br><br>
-            <label for="currency">통화:</label>
-            <input type="text" id="currency" name="currency" readonly>
-        </form>
-    </div>
-
-    <div id="popup" class="popup">
-        <p>송금이 완료되었습니다.</p>
-        <button class="back-btn" id="view-history-btn">거래내역 보러가기</button>
-        <button class="close-btn" id="close-popup-btn">닫기</button>
+    <div class="confirmation-buttons">
+        <a href="mypage.html">거래내역 보러가기</a>
+        <button onclick="window.location.href='index.html'">닫기</button>
     </div>
 </div>
 
 <script>
-    // Dummy transaction data
-    const transactions = [
-        { date: "2024-08-10", recipient: "홍길동", amount: "$1,000", currency: "USD" },
-        { date: "2024-07-25", recipient: "John Doe", amount: "€800", currency: "EUR" },
-        { date: "2024-07-12", recipient: "김철수", amount: "₩1,000,000", currency: "KRW" }
-    ];
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get data from localStorage
+        const recipientName = localStorage.getItem("recipientName") || '정보 없음';
+        const transferAmount = localStorage.getItem("transferAmount") || '정보 없음';
+        const recipientAccount = localStorage.getItem("recipientAccount") || '정보 없음';
+        const transferCurrency = localStorage.getItem("transferCurrency") || '정보 없음';
 
-    // Populate transaction table
-    const tableBody = document.getElementById("transaction-table-body");
-    transactions.forEach(transaction => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${transaction.date}</td>
-            <td>${transaction.recipient}</td>
-            <td>${transaction.amount}</td>
-            <td>${transaction.currency}</td>
-        `;
-        tableBody.appendChild(row);
-    });
+        // Set message and account info
+        document.getElementById("confirmation-message").textContent = `${recipientName}님께 ${transferAmount} ${transferCurrency} 이체 완료되었습니다.`;
+        document.getElementById("recipient-account").textContent = recipientAccount;
 
-    // Dummy account data
-    const accounts = {
-        '123456789012': { name: '홍길동', currency: 'USD' },
-        '234567890123': { name: '김철수', currency: 'KRW' },
-        '345678901234': { name: '이영희', currency: 'EUR' }
-    };
-
-    function fetchAccountInfo() {
-        let accountNumber = document.getElementById("account-number").value;
-        // Remove hyphens if they are present
-        accountNumber = accountNumber.replace(/-/g, '');
-        const account = accounts[accountNumber] || {};
-        document.getElementById("account-holder-name").value = account.name || '정보 없음';
-        document.getElementById("currency").value = account.currency || '정보 없음';
-    }
-
-    // Show popup after 1 second
-    setTimeout(function() {
-        document.getElementById("popup").style.display = "block";
-    }, 1000);
-
-    document.getElementById("view-history-btn").addEventListener("click", function() {
-        window.location.href = "mypage.html"; // 거래내역 보러가기 버튼 클릭 시 마이페이지로 이동
-    });
-
-    document.getElementById("close-popup-btn").addEventListener("click", function() {
-        window.location.href = "index.html"; // 팝업 닫기 버튼 클릭 시 메인 페이지로 이동
+        // Clear localStorage
+        localStorage.removeItem("recipientName");
+        localStorage.removeItem("transferAmount");
+        localStorage.removeItem("recipientAccount");
+        localStorage.removeItem("transferCurrency");
     });
 </script>
+
 </body>
 </html>
