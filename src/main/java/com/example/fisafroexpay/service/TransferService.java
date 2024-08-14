@@ -7,11 +7,11 @@ import com.example.fisafroexpay.entity.ExchangeDetail;
 import com.example.fisafroexpay.entity.TransferDetail;
 import com.example.fisafroexpay.entity.User;
 import com.example.fisafroexpay.entity.enums.Status;
-import com.example.fisafroexpay.repository.AccountRepository;
-import com.example.fisafroexpay.repository.TotalAccountRepository;
-import com.example.fisafroexpay.repository.TransferDetailRepository;
-import com.example.fisafroexpay.repository.UserRepository;
+import com.example.fisafroexpay.repository.*;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TransferService {
 
-    private final AccountService accountService;
+
     private final UserRepository userRepository;
     private final TransferDetailRepository transferDetailRepository;
     private final ExchangeService exchangeService;  // 환전 서비스 주입
-    private final TotalAccountRepository totalAccountRepository;
     private final AccountRepository accountRepository;
 
     private static final BigDecimal TRANSFER_FEE_KRW = BigDecimal.valueOf(5000);
@@ -49,9 +48,9 @@ public class TransferService {
         ExchangeDetail exchangeDetail = exchangeService.createExchangeDetail(req.getAmount(), req.getReceiverCurrencyCode());
 
         // 송금 수수료 계산(외화) = 환율 * 5000원
-        BigDecimal transferFee = exchangeDetail.getExchangeRate()
-                .getBaseExchangeRate()
-                .multiply(TRANSFER_FEE_KRW);
+        BigDecimal transferFee =
+                TRANSFER_FEE_KRW.divide(exchangeDetail.getExchangeRate().getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN);
+
         BigDecimal exchangedAmount = exchangeDetail.getFinalAmount();
         BigDecimal lastAmount = exchangedAmount.subtract(transferFee);
         BigDecimal totalTransferFee = transferFee.add(exchangeDetail.getExchangeFee());
@@ -62,9 +61,11 @@ public class TransferService {
                 .account(senderAccount)
                 .initAmount(exchangedAmount)
                 .lastAmount(lastAmount)
-                .transferFee(transferFee)
+                .transferFee(TRANSFER_FEE_KRW)
                 .status(Status.PROCESSING) // 임시로 저장 , Redis, memory cache 등
                 .build();
+
+
 
         // response 생성
         TransferResponse response = new TransferResponse(
