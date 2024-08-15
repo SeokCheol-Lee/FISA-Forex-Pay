@@ -146,7 +146,7 @@
         </div>
         <div class="form-group">
             <label for="receiverAccountNumber">받는 사람 계좌번호</label>
-            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력" onkeyup="fetchAccountInfo()">
+            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력">
         </div>
         <div class="form-group">
             <label for="receiverName">받는 사람 이름</label>
@@ -159,10 +159,10 @@
                 <div class="dropdown">
                     <button class="dropbtn" id="receiverCurrencyCode">USD</button>
                     <div class="dropdown-content" id="receiverCurrencyCode2">
-                        <a href="#" onclick="selectReceiveCurrency('USD')">USD</a>
-                        <a href="#" onclick="selectReceiveCurrency('JPY')">JPY</a>
-                        <a href="#" onclick="selectReceiveCurrency('CNY')">CNY</a>
-                        <a href="#" onclick="selectReceiveCurrency('EUR')">EUR</a>
+                        <a href="#" onclick="selectCurrency('USD')">USD</a>
+                        <a href="#" onclick="selectCurrency('JPY')">JPY</a>
+                        <a href="#" onclick="selectCurrency('CNY')">CNY</a>
+                        <a href="#" onclick="selectCurrency('EUR')">EUR</a>
                     </div>
                 </div>
             </div>
@@ -174,18 +174,18 @@
 </div>
 
 <script>
-    const exchangeRates = {
+    let exchangeRates = {
         'USD': 1142.03,
         'JPY': 7.56,
         'CNY': 160.12,
         'EUR': 1230.45
     };
 
-    const accounts = {
+    /*const accounts = {
         '123456789012': { name: '홍길동', currency: 'USD' },
         '234567890123': { name: '김철수', currency: 'KRW' },
         '345678901234': { name: '이영희', currency: 'EUR' }
-    };
+    };*/
 
     document.addEventListener("DOMContentLoaded", function() {
         const sendAmount = localStorage.getItem("transferAmount");
@@ -199,7 +199,27 @@
                 selectReceiveCurrency(this.textContent);
             });
         });
+
+        fetch('/exchange-rates')
+        .then(response => response.json())
+        .then(exchangeRates => {
+            console.log('Exchange rates:', exchangeRates);
+            // 환율 데이터를 사용하여 추가 작업 수행
+            initializeExchangeRates(exchangeRates);
+
+        })
+        .catch(error => console.error('Error fetching exchange rates:', error));
     });
+
+    function selectCurrency(currency) {
+        document.getElementById('receiverCurrencyCode').textContent = currency;
+
+        const amount = parseFloat(document.getElementById('amount').value.replace(/,/g, '')) || 0;
+        const rate = exchangeRates[currency] || 1;
+        const convertedAmount = (amount / rate).toFixed(2);
+
+        document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+    }
 
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -223,11 +243,18 @@
         calculateReceiveAmount();
     }
 
-    function fetchAccountInfo() {
+    // 비동기로 환율 데이터 가져오는 함수
+    function initializeExchangeRates(map){
+        exchangeRates = map;
+        console.log("init:");
+        console.log(exchangeRates);
+    }
+
+    /*function fetchAccountInfo() {
         const accountNumber = document.getElementById("recipient-account").value;
         const account = accounts[accountNumber] || {};
         document.getElementById("account-holder-name").value = account.name || '정보 없음';
-    }
+    }*/
 
    /* function submitForm() {
         const accountNumber = document.getElementById("recipient-account").value;

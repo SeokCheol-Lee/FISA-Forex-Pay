@@ -17,6 +17,7 @@ public class TransferResponse {
     private String userAccountNumber;
     private String receiverName;
     private String receiverAccountNumber;
+    private String currencyCode;
     private BigDecimal transferredAmount;  // 송금된 금액
     private BigDecimal totalTransferFee; // 환전 수수료 + 송금 수수료
 
