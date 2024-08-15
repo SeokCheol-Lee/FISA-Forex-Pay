@@ -111,9 +111,9 @@
     <p id="confirmation-message"></p>
 
     <div class="confirmation-details">
-        <p><span class="label">출금 계좌:</span> 1234-5678-9012</p>
+        <p><span class="label">출금 계좌:</span> <span id="sender-account"></span></p>
         <p><span class="label">받는 분 계좌:</span> <span id="recipient-account"></span></p>
-        <p><span class="label">수수료:</span> 5,000 원</p>
+        <p><span class="label">수수료:</span> <span id="fee"></span></p>
     </div>
 
     <div class="confirmation-buttons">
@@ -124,21 +124,36 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Get data from localStorage
-        const recipientName = localStorage.getItem("recipientName") || '정보 없음';
-        const transferAmount = localStorage.getItem("transferAmount") || '정보 없음';
-        const recipientAccount = localStorage.getItem("recipientAccount") || '정보 없음';
-        const transferCurrency = localStorage.getItem("transferCurrency") || '정보 없음';
+        fetch('/transfer/confirm')
+        .then(response => response.json())
+        .then(transferDetail => {
+            // Check if transferDetail has valid data
+            console.log(transferDetail)
+            if (transferDetail) {
+                const recipientName = transferDetail.receiverName || '정보 없음';
+                const transferAmount = transferDetail.transferredAmount || '정보 없음';
+                const recipientAccount = transferDetail.receiverAccountNumber || '정보 없음';
+                const transferCurrency = transferDetail.currencyCode || '정보 없음';
+                const senderAccount = transferDetail.userAccountNumber || '정보 없음';
+                const fee = transferDetail.totalTransferFee || '정보 없음';
 
-        // Set message and account info
-        document.getElementById("confirmation-message").textContent = `${recipientName}님께 ${transferAmount} ${transferCurrency} 이체 완료되었습니다.`;
-        document.getElementById("recipient-account").textContent = recipientAccount;
-
-        // Clear localStorage
-        localStorage.removeItem("recipientName");
-        localStorage.removeItem("transferAmount");
-        localStorage.removeItem("recipientAccount");
-        localStorage.removeItem("transferCurrency");
+                // Set message and account info
+                document.getElementById("confirmation-message").textContent = `${recipientName}님께 ${transferAmount} ${transferCurrency} 이체 완료되었습니다.`;
+                document.getElementById("recipient-account").textContent = recipientAccount;
+                document.getElementById("sender-account").textContent = senderAccount;
+                document.getElementById("fee").textContent = `${fee} KRW`;
+            } else {
+                // Handle the case where transferDetail is null or undefined
+                document.getElementById("confirmation-message").textContent = '정보를 불러오는 데 실패했습니다.';
+                document.getElementById("recipient-account").textContent = '정보 없음';
+            }
+        })
+        .catch(error => {
+            // Handle fetch error
+            console.error('Fetch error:', error);
+            document.getElementById("confirmation-message").textContent = '정보를 불러오는 데 실패했습니다.';
+            document.getElementById("recipient-account").textContent = '정보 없음';
+        });
     });
 </script>
 

@@ -344,6 +344,17 @@
         }
     });
 
+    // 페이지 이동 함수
+    function goToTransferPage() {
+        window.location.href = "transfer.html";
+    }
+
+    // DOM이 준비된 후 이벤트 리스너 추가
+    document.addEventListener('DOMContentLoaded', function() {
+        var continueButton = document.getElementById('continue-btn');
+        continueButton.addEventListener('click', goToTransferPage);
+    });
+
 </script>
 
 </body>
