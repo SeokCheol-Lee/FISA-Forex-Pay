@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long> {
 
-    ExchangeRate findByTargetCurrency(String targetCurrency);
+    @Query("SELECT e FROM ExchangeRate e WHERE e.targetCurrency = :targetCurrency ORDER BY e.createdAt DESC")
+    ExchangeRate findByTargetCurrency(@Param("targetCurrency") String targetCurrency);
 
 }
