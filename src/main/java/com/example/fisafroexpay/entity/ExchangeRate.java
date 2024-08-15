@@ -31,7 +31,7 @@ public class ExchangeRate extends BaseEntity {
     private BigDecimal baseExchangeRate;
 
     // 엔화만 100엔 당 n원 방식으로 저장되기 때문에 변경해야 할 필요 존재.
-    public void convertJpyRate() {
+    public void convertRateIfJpy() {
         if ("JPY(100)".equals(this.targetCurrency)) {
             this.baseExchangeRate = this.baseExchangeRate.divide(
                     BigDecimal.valueOf(100),
