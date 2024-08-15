@@ -36,15 +36,18 @@ public class AccountService {
         return account.getAccountNumber();
     }
 
-    private static String generateAccountNumber() {
-        // UUID를 생성
+    private String generateAccountNumber() {
         UUID uuid = UUID.randomUUID();
+        String uuidString = uuid.toString();
+        uuidString = uuidString.replace("-", "");
 
-        // UUID에서 하이픈을 제거하고, 대문자로 변환
-        String uuidString = uuid.toString().replace("-", "").toUpperCase();
+        String numericUUID = uuidString.replaceAll("[a-f]", "0");
 
-        // 계좌 번호를 구성하는 로직 (예: 앞의 12자만 사용)
-        String accountNumber = uuidString.substring(0, 12);
+        String accountNumber = String.format("%4s-%4s-%4s-%4s",
+            numericUUID.substring(0, 4),
+            numericUUID.substring(4, 8),
+            numericUUID.substring(8, 12),
+            numericUUID.substring(12, 16));
 
         return accountNumber;
     }

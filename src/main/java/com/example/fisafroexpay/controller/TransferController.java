@@ -6,8 +6,10 @@ import com.example.fisafroexpay.dto.TransferResponse;
 import com.example.fisafroexpay.entity.TransferDetail;
 import com.example.fisafroexpay.service.TransferService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +40,13 @@ public class TransferController {
   public String tradeTransfer(@AuthenticationPrincipal SecurityUser user,
       @ModelAttribute TransferRequest req) {
     TransferDetail transferDetail = transferService.processTransfer(user.getUser().getId(), req);
-    TransferResponse transferResponse = transferService.confirmTransfer(req, transferDetail);
+    transferService.confirmTransfer(req, transferDetail);
     return "redirect:/confirmation.html";
+  }
+
+  @GetMapping("/confirm")
+  public ResponseEntity<TransferResponse> tradeConfirm(@AuthenticationPrincipal SecurityUser user) {
+    TransferResponse transferDetail = transferService.getTransferDetail(user.getUser());
+    return ResponseEntity.ok(transferDetail);
   }
 }
