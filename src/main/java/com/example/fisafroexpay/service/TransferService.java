@@ -1,5 +1,6 @@
 package com.example.fisafroexpay.service;
 
+import com.example.fisafroexpay.dto.ReceiveAmountResponse;
 import com.example.fisafroexpay.dto.TransferRequest;
 import com.example.fisafroexpay.dto.TransferResponse;
 import com.example.fisafroexpay.entity.Account;
@@ -48,6 +49,7 @@ public class TransferService {
         // 환율 계산 (환전 서비스 호출)
         ExchangeDetail exchangeDetail = exchangeService.createExchangeDetail(req.getAmount(),
             req.getReceiverCurrencyCode());
+        exchangeDetail = exchangeService.saveExchangeDetail(exchangeDetail);
 
         // 송금 수수료 계산(외화) = 환율 * 5000원
         BigDecimal transferFee =
@@ -133,6 +135,21 @@ public class TransferService {
             .currencyCode(transferDetail.getCurrencyCode())
             .transferredAmount(transferDetail.getLastAmount())
             .totalTransferFee(transferDetail.getTransferFee()).build();
+    }
+
+
+    public ReceiveAmountResponse getReceiveAmount(String currencyCode, ExchangeDetail exchangeDetail){
+        BigDecimal transferFee =
+                TRANSFER_FEE_KRW.divide(exchangeDetail.getExchangeRate().getBaseExchangeRate(), 2,
+                        RoundingMode.HALF_EVEN);
+
+        BigDecimal exchangedAmount = exchangeDetail.getFinalAmount();
+        BigDecimal lastAmount = exchangedAmount.subtract(transferFee);
+
+
+        return new ReceiveAmountResponse(currencyCode, lastAmount);
+
+
     }
 
 }

@@ -325,6 +325,8 @@
                 document.getElementById("continue-btn").textContent = "송금하기";
                 document.getElementById("continue-btn").addEventListener("click", function() {
                     localStorage.setItem("transferAmount", document.getElementById('you-send').value.replace(/,/g, ''));
+                    localStorage.setItem("code", document.getElementById('currency-dropdown').textContent);
+                    console.log(document.getElementById('currency-dropdown').textContent);
                     window.location.href = 'transfer.html';
                 });
             }
