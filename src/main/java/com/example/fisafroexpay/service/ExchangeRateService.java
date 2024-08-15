@@ -127,15 +127,21 @@ public class ExchangeRateService {
     public Map<String, BigDecimal> getNewestCurrencyRateMap(){
 
         ExchangeRate rateUSD = exchangeRateRepository.findByTargetCurrency("USD");
-        ExchangeRate rateCNY = exchangeRateRepository.findByTargetCurrency("CNY");
-        ExchangeRate rateJPY = exchangeRateRepository.findByTargetCurrency("JPY");
+        ExchangeRate rateCNY = exchangeRateRepository.findByTargetCurrency("CNH");
+        ExchangeRate rateJPY = exchangeRateRepository.findByTargetCurrency("JPY(100)");
+        rateJPY.convertJpyRate();
         ExchangeRate rateEUR = exchangeRateRepository.findByTargetCurrency("EUR");
+
+
 
         Map<String, BigDecimal> map = new HashMap<>();
         map.put("USD", rateUSD.getBaseExchangeRate());
         map.put("CNY", rateCNY.getBaseExchangeRate());
         map.put("JPY", rateJPY.getBaseExchangeRate());
         map.put("EUR", rateEUR.getBaseExchangeRate());
+
+        logger.info(map.toString());
+
 
         return map;
     }
