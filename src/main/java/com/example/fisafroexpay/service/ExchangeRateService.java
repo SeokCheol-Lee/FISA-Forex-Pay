@@ -129,7 +129,7 @@ public class ExchangeRateService {
         ExchangeRate rateUSD = exchangeRateRepository.findByTargetCurrency("USD");
         ExchangeRate rateCNY = exchangeRateRepository.findByTargetCurrency("CNH");
         ExchangeRate rateJPY = exchangeRateRepository.findByTargetCurrency("JPY(100)");
-        rateJPY.convertJpyRate();
+        rateJPY.convertRateIfJpy();
         ExchangeRate rateEUR = exchangeRateRepository.findByTargetCurrency("EUR");
 
 
