@@ -133,7 +133,7 @@
             <div class="input-group">
                 <input type="text" id="amount" name="amount">
                 <div class="dropdown">
-                    <button class="dropbtn" id="send-currency">KRW</button>
+                    <div class="dropbtn" id="send-currency">KRW</div>
                     <div class="dropdown-content" id="send-currency-options">
                         <a href="#" onclick="selectSendCurrency('KRW')">KRW</a>
                         <a href="#" onclick="selectSendCurrency('USD')">USD</a>
@@ -157,7 +157,7 @@
             <div class="input-group">
                 <input type="text" id="receive-amount" name="receiveAmount" readonly>
                 <div class="dropdown">
-                    <button class="dropbtn" id="receiverCurrencyCode">USD</button>
+                    <div class="dropbtn" id="receiverCurrencyCode">USD</div>
                     <div class="dropdown-content" id="receiverCurrencyCode2">
                         <a href="#" onclick="selectCurrency('USD')">USD</a>
                         <a href="#" onclick="selectCurrency('JPY')">JPY</a>
@@ -189,8 +189,12 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         const sendAmount = localStorage.getItem("transferAmount");
+        const code = localStorage.getItem("code").valueOf();
+        console.log(code);
         if (sendAmount) {
-            document.getElementById('send-amount').value = formatNumber(sendAmount);
+            document.getElementById('amount').value = sendAmount;
+            document.getElementById('receiverCurrencyCode').textContent = code;
+
             calculateReceiveAmount();
         }
 
@@ -213,12 +217,13 @@
 
     function selectCurrency(currency) {
         document.getElementById('receiverCurrencyCode').textContent = currency;
-
-        const amount = parseFloat(document.getElementById('amount').value.replace(/,/g, '')) || 0;
-        const rate = exchangeRates[currency] || 1;
-        const convertedAmount = (amount / rate).toFixed(2);
-
-        document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+        //
+        // const amount = parseFloat(document.getElementById('amount').value.replace(/,/g, '')) || 0;
+        // const rate = exchangeRates[currency] || 1;
+        // const convertedAmount = (amount / rate).toFixed(2);
+        //
+        // document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+        calculateReceiveAmount()
     }
 
     function formatNumber(num) {
@@ -226,11 +231,41 @@
     }
 
     function calculateReceiveAmount() {
+
         const sendAmount = parseFloat(localStorage.getItem("transferAmount")) || 0;
-        const receiveCurrency = document.getElementById('receive-currency').textContent;
-        const rate = exchangeRates[receiveCurrency] || 1;
-        const convertedAmount = (sendAmount / rate).toFixed(2);
-        document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+        const receiveCurrency = document.getElementById('receiverCurrencyCode').textContent;
+
+        const requestPayload = {
+            currencyCode: receiveCurrency,
+            amount: sendAmount
+        };
+
+        fetch('/transfer/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestPayload)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response is not ok');
+                }
+                return response.json();
+            })
+            .then(data=>{
+                if (data && data.amount !== undefined){
+                    document.getElementById('receive-amount').value = data.amount;
+                }else{
+                    console.error('Unexpected format:', data);
+                }
+
+            })
+            .catch(error => console.error('Error:', error));
+
+        // const rate = exchangeRates[receiveCurrency] || 1;
+        // const convertedAmount = (sendAmount / rate).toFixed(2);
+        // document.getElementById('receive-amount').value = formatNumber(convertedAmount);
     }
 
     function selectSendCurrency(currency) {

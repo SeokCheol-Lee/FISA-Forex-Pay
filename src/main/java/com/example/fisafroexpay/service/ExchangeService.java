@@ -1,6 +1,5 @@
 package com.example.fisafroexpay.service;
 
-import com.example.fisafroexpay.dto.ExchangeRequest;
 import com.example.fisafroexpay.entity.ExchangeDetail;
 import com.example.fisafroexpay.entity.ExchangeRate;
 import com.example.fisafroexpay.entity.enums.Status;
@@ -24,8 +23,8 @@ public class ExchangeService {
         log.info("[ExchangeService.createExchangeDetail]");
 
         // 환율 받아오기
-        ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(currencyCode);
-
+        ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(convertCurrencyCode(currencyCode));
+        exchangeRate.convertRateIfJpy();
         //고객이 얼마를 보낼건지 받기(원화)
 
 
@@ -40,17 +39,27 @@ public class ExchangeService {
         BigDecimal exchangedAmount = initAmountDecimal.divide(exchangeRate.getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN).subtract(exchangeFee);
 
 
-        ExchangeDetail exchangeDetail = ExchangeDetail.builder()
+        return ExchangeDetail.builder()
                 .exchangeRate(exchangeRate)
                 .initAmount(initAmount)
                 .exchangeFee(exchangeFeeKRW)
                 .finalAmount(exchangedAmount)
                 .status(Status.COMPLETED)
                 .build();
-        exchangeDetailRepository.save(exchangeDetail);
-        return exchangeDetail;
 
     }
 
+    private String convertCurrencyCode(String currencyCode) {
+        if ("JPY".equals(currencyCode)) return "JPY(100)";
+        if ("CNY".equals(currencyCode)) return "CNH";
+        if ("USD".equals(currencyCode) || "EUR".equals(currencyCode)) return currencyCode;
+
+        throw new RuntimeException("국가코드가 옳지 않습니다");
+    }
+
+
+    public ExchangeDetail saveExchangeDetail(ExchangeDetail exchangeDetail){
+        return exchangeDetailRepository.save(exchangeDetail);
+    }
 
 }
