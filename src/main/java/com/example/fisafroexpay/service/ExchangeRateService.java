@@ -1,16 +1,12 @@
 package com.example.fisafroexpay.service;
 
+import static com.example.fisafroexpay.util.SslUtils.disableSslVerification;
+
 import com.example.fisafroexpay.dto.ExchangeRateDTO;
 import com.example.fisafroexpay.entity.ExchangeRate;
 import com.example.fisafroexpay.repository.ExchangeRateRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,8 +16,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static com.example.fisafroexpay.util.SslUtils.disableSslVerification;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ExchangeRateService {
@@ -115,7 +113,7 @@ public class ExchangeRateService {
 
     }
     // 1시간에 한 번씩
-    @Scheduled(cron = "0 55 * * * ?")
+    //@Scheduled(cron = "0 55 * * * ?")
     public void execute() {
         logger.info("cron");
         String jsonString = fetchExchangeRateData();

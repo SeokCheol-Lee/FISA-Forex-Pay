@@ -2,7 +2,9 @@ package com.example.fisafroexpay.controller;
 
 import com.example.fisafroexpay.dto.BankAccountRequest;
 import com.example.fisafroexpay.dto.BankAccountResponse;
+import com.example.fisafroexpay.scrap.ScrapService;
 import com.example.fisafroexpay.service.BankAccountService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BankAccountController {
 
   private final BankAccountService bankAccountService;
+  private final ScrapService scrapService;
 
   @PostMapping
   public ResponseEntity<String> addBankAccount(@RequestBody BankAccountRequest bankAccountRequest) {
@@ -44,5 +47,10 @@ public class BankAccountController {
   public ResponseEntity<String> deleteBankAccount(@RequestParam Long bankAccountId) {
     bankAccountService.deleteBankAccount(bankAccountId);
     return ResponseEntity.ok("Bank Account Deleted");
+  }
+
+  @GetMapping("/scrap")
+  public void getScrap() throws IOException {
+    scrapService.scrap();
   }
 }
