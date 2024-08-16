@@ -7,6 +7,8 @@ import com.example.fisafroexpay.entity.ExchangeRate;
 import com.example.fisafroexpay.repository.ExchangeRateRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,27 +18,27 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@RequiredArgsConstructor
 public class ExchangeRateService {
 
     private static final Logger logger = Logger.getLogger(ExchangeRateService.class.getName());
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    private final ScrapService scrapService;
     private final ExchangeRateRepository exchangeRateRepository;
 
     @Value("${api.key}")
     private String authkey;
-
-    @Autowired
-    public ExchangeRateService(ExchangeRateRepository exchangeRateRepository) {
-        this.exchangeRateRepository = exchangeRateRepository;
-    }
 
     /**
      * API에서 환율 데이터를 가져와 JSON 문자열로 반환합니다.
@@ -107,11 +109,12 @@ public class ExchangeRateService {
         return today.format(formatter); // 날짜를 문자열로 포맷
     }
 
-    private String getUrl(){
+    private String getUrl() {
         String date = getCurrentDate();
         return "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=" + authkey + "&searchdate=" + date + "&data=AP01";
 
     }
+
     // 1시간에 한 번씩
     //@Scheduled(cron = "0 55 * * * ?")
     public void execute() {
@@ -122,14 +125,18 @@ public class ExchangeRateService {
     }
 
 
-    public Map<String, BigDecimal> getNewestCurrencyRateMap(){
+    public Map<String, BigDecimal> getNewestCurrencyRateMap() throws IOException {
 
         ExchangeRate rateUSD = exchangeRateRepository.findByTargetCurrency("USD");
+        if (rateUSD == null) {
+            scrapService.scrap();
+            rateUSD = exchangeRateRepository.findByTargetCurrency("USD");
+        }
+        System.out.println(rateUSD);
         ExchangeRate rateCNY = exchangeRateRepository.findByTargetCurrency("CNH");
         ExchangeRate rateJPY = exchangeRateRepository.findByTargetCurrency("JPY(100)");
         rateJPY.convertRateIfJpy();
         ExchangeRate rateEUR = exchangeRateRepository.findByTargetCurrency("EUR");
-
 
 
         Map<String, BigDecimal> map = new HashMap<>();

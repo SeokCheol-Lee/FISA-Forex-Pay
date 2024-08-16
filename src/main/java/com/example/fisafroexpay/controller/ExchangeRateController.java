@@ -20,7 +20,7 @@ public class ExchangeRateController {
 
 
     @GetMapping("/exchange-rates")
-    public Map<String, BigDecimal> getExchangeRate(){
+    public Map<String, BigDecimal> getExchangeRate() throws IOException{
         return exchangeRateService.getNewestCurrencyRateMap();
 
     }
