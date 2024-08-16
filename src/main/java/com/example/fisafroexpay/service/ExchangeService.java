@@ -16,50 +16,58 @@ import java.math.RoundingMode;
 @Service
 @RequiredArgsConstructor
 public class ExchangeService {
-    private final ExchangeRateRepository exchangeRateRepository;
-    private final ExchangeDetailRepository exchangeDetailRepository;
 
-    public ExchangeDetail createExchangeDetail(Long initAmount, String currencyCode) {
-        log.info("[ExchangeService.createExchangeDetail]");
+  private final ExchangeRateRepository exchangeRateRepository;
+  private final ExchangeDetailRepository exchangeDetailRepository;
 
-        // 환율 받아오기
-        ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(convertCurrencyCode(currencyCode));
-        exchangeRate.convertRateIfJpy();
-        //고객이 얼마를 보낼건지 받기(원화)
+  public ExchangeDetail createExchangeDetail(Long initAmount, String currencyCode) {
+    log.info("[ExchangeService.createExchangeDetail]");
+
+    // 환율 받아오기
+    ExchangeRate exchangeRate = exchangeRateRepository.findByTargetCurrency(
+        convertCurrencyCode(currencyCode));
+    exchangeRate.convertRateIfJpy();
+    //고객이 얼마를 보낼건지 받기(원화)
+
+    // 환전 수수료 (원화, 환전 수수료율 1.5% 적용, 테이블에 저장)
+    BigDecimal initAmountDecimal = BigDecimal.valueOf(initAmount);
+    BigDecimal exchangeFeeKRW = initAmountDecimal.multiply(BigDecimal.valueOf(0.015));
+
+    // 환전 수수료 (외화)
+    BigDecimal exchangeFee = exchangeFeeKRW.divide(exchangeRate.getBaseExchangeRate(), 2,
+        RoundingMode.HALF_EVEN);
+
+    // 최종 환전 금액 (초기 금액 * 매매 기준율 - 환전수수료)
+    BigDecimal exchangedAmount = initAmountDecimal.divide(exchangeRate.getBaseExchangeRate(), 2,
+        RoundingMode.HALF_EVEN).subtract(exchangeFee);
+
+    return ExchangeDetail.builder()
+        .exchangeRate(exchangeRate)
+        .initAmount(initAmount)
+        .exchangeFee(exchangeFeeKRW)
+        .finalAmount(exchangedAmount)
+        .status(Status.COMPLETED)
+        .build();
+
+  }
+
+  private String convertCurrencyCode(String currencyCode) {
+      if ("JPY".equals(currencyCode)) {
+          return "JPY(100)";
+      }
+      if ("CNY".equals(currencyCode)) {
+          return "CNH";
+      }
+      if ("USD".equals(currencyCode) || "EUR".equals(currencyCode)) {
+          return currencyCode;
+      }
+
+    throw new RuntimeException("국가코드가 옳지 않습니다");
+  }
 
 
-        // 환전 수수료 (원화, 환전 수수료율 1.5% 적용, 테이블에 저장)
-        BigDecimal initAmountDecimal = BigDecimal.valueOf(initAmount);
-        BigDecimal exchangeFeeKRW = initAmountDecimal.multiply(BigDecimal.valueOf(0.015));
-
-        // 환전 수수료 (외화)
-        BigDecimal exchangeFee = exchangeFeeKRW.divide(exchangeRate.getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN);
-
-        // 최종 환전 금액 (초기 금액 * 매매 기준율 - 환전수수료)
-        BigDecimal exchangedAmount = initAmountDecimal.divide(exchangeRate.getBaseExchangeRate(),2 , RoundingMode.HALF_EVEN).subtract(exchangeFee);
-
-
-        return ExchangeDetail.builder()
-                .exchangeRate(exchangeRate)
-                .initAmount(initAmount)
-                .exchangeFee(exchangeFeeKRW)
-                .finalAmount(exchangedAmount)
-                .status(Status.COMPLETED)
-                .build();
-
-    }
-
-    private String convertCurrencyCode(String currencyCode) {
-        if ("JPY".equals(currencyCode)) return "JPY(100)";
-        if ("CNY".equals(currencyCode)) return "CNH";
-        if ("USD".equals(currencyCode) || "EUR".equals(currencyCode)) return currencyCode;
-
-        throw new RuntimeException("국가코드가 옳지 않습니다");
-    }
-
-
-    public ExchangeDetail saveExchangeDetail(ExchangeDetail exchangeDetail){
-        return exchangeDetailRepository.save(exchangeDetail);
-    }
+  public ExchangeDetail saveExchangeDetail(ExchangeDetail exchangeDetail) {
+    return exchangeDetailRepository.save(exchangeDetail);
+  }
 
 }

@@ -1,4 +1,4 @@
-package com.example.fisafroexpay.scrap;
+package com.example.fisafroexpay.service;
 
 import com.example.fisafroexpay.dto.Country;
 import com.example.fisafroexpay.entity.ExchangeRate;
