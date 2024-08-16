@@ -146,11 +146,11 @@
         </div>
         <div class="form-group">
             <label for="receiverAccountNumber">받는 사람 계좌번호</label>
-            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력">
+            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력" oninput="fetchAccountInfo()">
         </div>
         <div class="form-group">
             <label for="receiverName">받는 사람 이름</label>
-            <input type="text" id="receiverName" name="receiverName" class="readonly-input" >
+            <input type="text" id="receiverName" name="receiverName" class="readonly-input" readonly>
         </div>
         <div class="form-group">
             <label for="receive-amount">최종 송금 금액</label>
@@ -181,15 +181,16 @@
         'EUR': 1230.45
     };
 
-    /*const accounts = {
-        '123456789012': { name: '홍길동', currency: 'USD' },
-        '234567890123': { name: '김철수', currency: 'KRW' },
-        '345678901234': { name: '이영희', currency: 'EUR' }
-    };*/
+    const accounts = {
+        '4301-9732-1577-8304': { name: '박장우', currency: 'USD' },
+        '8197-4026-6094-5721': { name: '구동길', currency: 'JPY' },
+        '6245-1386-0744-2983': { name: '이석철', currency: 'CNY' },
+        '2097-5638-1407-8309': { name: '박현서', currency: 'EUR' }
+    };
 
     document.addEventListener("DOMContentLoaded", function() {
         const sendAmount = localStorage.getItem("transferAmount");
-        const code = localStorage.getItem("code").valueOf();
+        const code = localStorage.getItem("code");
         console.log(code);
         if (sendAmount) {
             document.getElementById('amount').value = sendAmount;
@@ -205,14 +206,14 @@
         });
 
         fetch('/exchange-rates')
-        .then(response => response.json())
-        .then(exchangeRates => {
-            console.log('Exchange rates:', exchangeRates);
-            // 환율 데이터를 사용하여 추가 작업 수행
-            initializeExchangeRates(exchangeRates);
+            .then(response => response.json())
+            .then(exchangeRates => {
+                console.log('Exchange rates:', exchangeRates);
+                // 환율 데이터를 사용하여 추가 작업 수행
+                initializeExchangeRates(exchangeRates);
 
-        })
-        .catch(error => console.error('Error fetching exchange rates:', error));
+            })
+            .catch(error => console.error('Error fetching exchange rates:', error));
     });
 
     function selectCurrency(currency) {
@@ -285,23 +286,15 @@
         console.log(exchangeRates);
     }
 
-    /*function fetchAccountInfo() {
-        const accountNumber = document.getElementById("recipient-account").value;
-        const account = accounts[accountNumber] || {};
-        document.getElementById("account-holder-name").value = account.name || '정보 없음';
-    }*/
-
-   /* function submitForm() {
-        const accountNumber = document.getElementById("recipient-account").value;
+    function fetchAccountInfo() {
+        const accountNumber = document.getElementById("receiverAccountNumber").value;
         const account = accounts[accountNumber];
         if (account) {
-            localStorage.setItem("recipientName", account.name);
-            localStorage.setItem("recipientCurrency", account.currency);
-            window.location.href = "confirmation.html";
+            document.getElementById("receiverName").value = account.name;
         } else {
-            alert('유효하지 않은 계좌번호입니다.');
+            document.getElementById("receiverName").value = '정보 없음';
         }
-    }*/
+    }
 </script>
 
 </body>

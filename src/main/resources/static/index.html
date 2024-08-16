@@ -178,7 +178,13 @@
             display: block;
         }
 
-        .fees, .exchange-rate {
+        .fees {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .exchange-rate {
             font-size: 14px;
             color: #555;
             margin-bottom: 15px;
@@ -228,7 +234,7 @@
         <div class="form-group">
             <label for="you-send">송금 금액</label>
             <div class="input-group">
-                <input type="text" id="you-send" placeholder="Enter amount">
+                <input type="text" id="you-send" placeholder="Enter amount" oninput="validateAndFormatAmount(this)">
                 <div class="dropdown">
                     <button class="dropbtn" id="krw-dropdown">KRW</button>
                     <div class="dropdown-content">
@@ -236,6 +242,7 @@
                     </div>
                 </div>
             </div>
+            <p id="amount-warning" style="color: red; display: none;">10만 원 이상 입력해주세요.</p>
         </div>
         <div class="form-group">
             <label for="recipient-gets">환전 금액</label>
@@ -252,20 +259,49 @@
                 </div>
             </div>
         </div>
-        <p class="fees">Total fees - 7.21 USD</p>
-        <p class="exchange-rate" id="exchange-rate">The current exchange rate is 1 USD = 1142.03 KRW</p>
-        <button class="continue-btn" id="continue-btn">Continue</button>
+        <p class="exchange-rate" id="exchange-rate">현재 환율 : 1 USD = 1142.03 KRW</p>
+        <p class="fees">* 거래 건당 수수료는 5,000원이며, 추가적인 환전 수수료가 발생할 수 있습니다.</p>
+        <button class="continue-btn" id="continue-btn" disabled>Continue</button>
     </div>
 </div>
 
 <script>
-    // 숫자에 천 단위 구분 기호 추가 함수
+    const MIN_AMOUNT = 100000;
+
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
+    function unformatNumber(num) {
+        return num.replace(/,/g, "");
+    }
 
-    // 기본값
+    function validateAndFormatAmount(input) {
+        const rawValue = unformatNumber(input.value);
+        const numericValue = parseInt(rawValue, 10);
+
+        if (isNaN(numericValue)) {
+            input.value = "";
+            return;
+        }
+
+        input.value = formatNumber(numericValue);
+
+        const amountWarning = document.getElementById("amount-warning");
+        const continueBtn = document.getElementById("continue-btn");
+
+        if (numericValue < MIN_AMOUNT) {
+            amountWarning.style.display = "block";
+            continueBtn.disabled = true;
+        } else {
+            amountWarning.style.display = "none";
+            continueBtn.disabled = false;
+        }
+
+        const currency = document.getElementById('currency-dropdown').textContent;
+        selectCurrency(currency);
+    }
+
     let exchangeRates = {
         'USD': 1142.03,
         'JPY': 7.56,
@@ -276,12 +312,12 @@
     function selectCurrency(currency) {
         document.getElementById('currency-dropdown').textContent = currency;
 
-        const amount = parseFloat(document.getElementById('you-send').value.replace(/,/g, '')) || 0;
+        const amount = parseFloat(unformatNumber(document.getElementById('you-send').value)) || 0;
         const rate = exchangeRates[currency] || 1;
         const convertedAmount = (amount / rate).toFixed(2);
 
         document.getElementById('recipient-gets').value = formatNumber(convertedAmount);
-        document.getElementById('exchange-rate').textContent = `The current exchange rate is 1 ${currency} = ${rate} KRW`;
+        document.getElementById('exchange-rate').textContent = `현재 환율 : 1 ${currency} = ${rate} KRW`;
     }
 
     document.getElementById('you-send').addEventListener('input', function() {
@@ -290,39 +326,33 @@
     });
 
     document.addEventListener("DOMContentLoaded", function() {
-        // 로컬 스토리지에서 로그인 상태와 사용자 이름을 가져옴
         fetch('/profile')
             .then(response => response.text())
             .then(username => {
                 if (username !== "anonymousUser") {
-                    updateUI(username)
+                    updateUI(username);
                 } else {
-                    updateUI(null)
+                    updateUI(null);
                 }
-
             });
 
         fetch('/exchange-rates')
             .then(response => response.json())
-            .then(exchangeRates => {
-                console.log('Exchange rates:', exchangeRates);
-                // 환율 데이터를 사용하여 추가 작업 수행
-                initializeExchangeRates(exchangeRates);
-
+            .then(data => {
+                console.log('Exchange rates:', data);
+                initializeExchangeRates(data);
             })
             .catch(error => console.error('Error fetching exchange rates:', error));
 
-        // 로그아웃 처리
         document.getElementById("logout-link").addEventListener("click", function() {
             fetch('/logout', { method: 'POST' })
                 .then(() => {
                     alert('로그아웃 되었습니다.');
-                    updateUI(null)
+                    updateUI(null);
                     window.location.href = 'index.html';
                 });
         });
 
-        // UI 업데이트 함수
         function updateUI(username) {
             if (username) {
                 document.getElementById("login-link").style.display = 'none';
@@ -333,39 +363,24 @@
 
                 document.getElementById("continue-btn").textContent = "송금하기";
                 document.getElementById("continue-btn").addEventListener("click", function() {
-                    localStorage.setItem("transferAmount", document.getElementById('you-send').value.replace(/,/g, ''));
+                    localStorage.setItem("transferAmount", unformatNumber(document.getElementById('you-send').value));
                     localStorage.setItem("code", document.getElementById('currency-dropdown').textContent);
-                    console.log(document.getElementById('currency-dropdown').textContent);
                     window.location.href = 'transfer.html';
+                });
+            } else {
+                document.getElementById("continue-btn").addEventListener("click", function() {
+                    alert('로그인 후 이용 가능한 서비스입니다.');
+                    window.location.href = 'login.html';
                 });
             }
         }
-
-        // 사용자 링크 클릭 시 동작
-        document.getElementById("f").addEventListener('click', function() {
-            window.location.href = 'mypage.html';
-        });
-
-
-        // 비동기로 환율 데이터 가져오는 함수
-        function initializeExchangeRates(map){
-            exchangeRates = map;
-            console.log("init:");
-            console.log(exchangeRates);
-        }
     });
 
-    // 페이지 이동 함수
-    function goToTransferPage() {
-        window.location.href = "transfer.html";
+    function initializeExchangeRates(map) {
+        exchangeRates = map;
+        console.log("init:");
+        console.log(exchangeRates);
     }
-
-    // DOM이 준비된 후 이벤트 리스너 추가
-    document.addEventListener('DOMContentLoaded', function() {
-        var continueButton = document.getElementById('continue-btn');
-        continueButton.addEventListener('click', goToTransferPage);
-    });
-
 </script>
 
 </body>
