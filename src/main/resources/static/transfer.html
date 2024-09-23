@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>송금하기 - FISA Forex Pay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .transfer-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .transfer-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .dropbtn {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            min-width: 100px;
+            z-index: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .readonly-input {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<div class="transfer-container">
+    <h2>송금하기</h2>
+    <form action="/transfer/trade" method="post">
+        <div class="form-group">
+            <label for="amount">송금 금액</label>
+            <div class="input-group">
+                <input type="text" id="amount" name="amount">
+                <div class="dropdown">
+                    <div class="dropbtn" id="send-currency">KRW</div>
+                    <div class="dropdown-content" id="send-currency-options">
+                        <a href="#" onclick="selectSendCurrency('KRW')">KRW</a>
+                        <a href="#" onclick="selectSendCurrency('USD')">USD</a>
+                        <a href="#" onclick="selectSendCurrency('EUR')">EUR</a>
+                        <a href="#" onclick="selectSendCurrency('JPY')">JPY</a>
+                        <a href="#" onclick="selectSendCurrency('CNY')">CNY</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="receiverAccountNumber">받는 사람 계좌번호</label>
+            <input type="text" id="receiverAccountNumber" name="receiverAccountNumber" placeholder="계좌번호 입력" oninput="fetchAccountInfo()">
+        </div>
+        <div class="form-group">
+            <label for="receiverName">받는 사람 이름</label>
+            <input type="text" id="receiverName" name="receiverName" class="readonly-input" readonly>
+        </div>
+        <div class="form-group">
+            <label for="receive-amount">최종 송금 금액</label>
+            <div class="input-group">
+                <input type="text" id="receive-amount" name="receiveAmount" readonly>
+                <div class="dropdown">
+                    <div class="dropbtn" id="receiverCurrencyCode">USD</div>
+                    <div class="dropdown-content" id="receiverCurrencyCode2">
+                        <a href="#" onclick="selectCurrency('USD')">USD</a>
+                        <a href="#" onclick="selectCurrency('JPY')">JPY</a>
+                        <a href="#" onclick="selectCurrency('CNY')">CNY</a>
+                        <a href="#" onclick="selectCurrency('EUR')">EUR</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Hidden input field to store the receiver currency code -->
+        <input type="hidden" id="receiverCurrencyCodeInput" name="receiverCurrencyCode" value="USD">
+        <button type="submit" class="submit-btn">송금 완료</button>
+    </form>
+</div>
+
+<script>
+    let exchangeRates = {
+        'USD': 1142.03,
+        'JPY': 7.56,
+        'CNY': 160.12,
+        'EUR': 1230.45
+    };
+
+    const accounts = {
+        '4301-9732-1577-8304': { name: '박장우', currency: 'USD' },
+        '8197-4026-6094-5721': { name: '구동길', currency: 'JPY' },
+        '6245-1386-0744-2983': { name: '이석철', currency: 'CNY' },
+        '2097-5638-1407-8309': { name: '박현서', currency: 'EUR' }
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const sendAmount = localStorage.getItem("transferAmount");
+        const code = localStorage.getItem("code");
+        console.log(code);
+        if (sendAmount) {
+            document.getElementById('amount').value = sendAmount;
+            document.getElementById('receiverCurrencyCode').textContent = code;
+
+            calculateReceiveAmount();
+        }
+
+        document.querySelectorAll('#receive-currency-options a').forEach(option => {
+            option.addEventListener('click', function() {
+                selectReceiveCurrency(this.textContent);
+            });
+        });
+
+        fetch('/exchange-rates')
+            .then(response => response.json())
+            .then(exchangeRates => {
+                console.log('Exchange rates:', exchangeRates);
+                // 환율 데이터를 사용하여 추가 작업 수행
+                initializeExchangeRates(exchangeRates);
+
+            })
+            .catch(error => console.error('Error fetching exchange rates:', error));
+    });
+
+    function selectCurrency(currency) {
+        document.getElementById('receiverCurrencyCode').textContent = currency;
+        //
+        // const amount = parseFloat(document.getElementById('amount').value.replace(/,/g, '')) || 0;
+        // const rate = exchangeRates[currency] || 1;
+        // const convertedAmount = (amount / rate).toFixed(2);
+        //
+        // document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+        calculateReceiveAmount()
+    }
+
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function calculateReceiveAmount() {
+
+        const sendAmount = parseFloat(localStorage.getItem("transferAmount")) || 0;
+        const receiveCurrency = document.getElementById('receiverCurrencyCode').textContent;
+
+        const requestPayload = {
+            currencyCode: receiveCurrency,
+            amount: sendAmount
+        };
+
+        fetch('/transfer/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestPayload)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response is not ok');
+                }
+                return response.json();
+            })
+            .then(data=>{
+                if (data && data.amount !== undefined){
+                    document.getElementById('receive-amount').value = data.amount;
+                }else{
+                    console.error('Unexpected format:', data);
+                }
+
+            })
+            .catch(error => console.error('Error:', error));
+
+        // const rate = exchangeRates[receiveCurrency] || 1;
+        // const convertedAmount = (sendAmount / rate).toFixed(2);
+        // document.getElementById('receive-amount').value = formatNumber(convertedAmount);
+    }
+
+    function selectSendCurrency(currency) {
+        document.getElementById('send-currency').textContent = currency;
+        calculateReceiveAmount();
+    }
+
+    function selectReceiveCurrency(currency) {
+        document.getElementById('receive-currency').textContent = currency;
+        calculateReceiveAmount();
+    }
+
+    // 비동기로 환율 데이터 가져오는 함수
+    function initializeExchangeRates(map){
+        exchangeRates = map;
+        console.log("init:");
+        console.log(exchangeRates);
+    }
+
+    function fetchAccountInfo() {
+        const accountNumber = document.getElementById("receiverAccountNumber").value;
+        const account = accounts[accountNumber];
+        if (account) {
+            document.getElementById("receiverName").value = account.name;
+        } else {
+            document.getElementById("receiverName").value = '정보 없음';
+        }
+    }
+</script>
+
+</body>
+</html>
